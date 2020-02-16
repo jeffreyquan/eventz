@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "../utils/useForm";
+import axios from 'axios';
 
 const SignUp = () => {
   const [values, handleChange] = useForm({
@@ -10,7 +11,14 @@ const SignUp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Submitting...');
+    axios
+      .post("http://localhost:5000/api/users/signup", values)
+      .then(res => {
+        console.log('AAAAA');
+      })
+      .catch(err => {
+        console.log(err.response.data);
+      });
   }
 
   return (
