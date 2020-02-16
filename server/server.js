@@ -1,23 +1,30 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const config = require('config');
 
 const app = express();
 
 app.use(express.json());
-app.user(cors());
-app.user(express.urlencoded())
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 
-const db = "mongodb://127.0.0.1/eventz_server";
+const db = config.get('mongoURI');
 
 mongoose.Promise = global.Promise;
 
 mongoose.set('useFindAndModify', false);
 mongoose
   .connect(db, {
-    useNewUrlParser: true
-  }
-);
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+  })
+  .then(() => console.log("DB connected."))
+  .catch(err => console.log(err));
+
+app.use('/api/users', require('./api/routes/userRoutes'));
+app.use('/api/auth', require('./api/routes/authRoutes'))
 
 const port = process.env.PORT || 5000;
 
