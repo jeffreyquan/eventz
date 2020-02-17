@@ -1,30 +1,72 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useForm } from "../utils/useForm";
-import axios from 'axios';
+import { useForm } from '../utils/useForm';
+import { connect } from 'react-redux';
 import  { Grid, Button, Form } from 'semantic-ui-react';
+import PropTypes from 'prop-types';
 import validateForm from '../utils/validateForm';
+import { register } from '../actions/authActions';
+import { clearErrors } from '../actions/errorActions';
 
-const SignUp = () => {
+const Register = props => {
+
   const [values, handleChange] = useForm({
     name: "",
     email: "",
     password: "",
-    confirmationPassword: "",
+    confirmationPassword: ""
   });
 
-  const [disabledButton, setDisabledButton] = useState(true)
+  const [error, setError] = useState(null);
+
+  const [errors, setErrors] = useState(validateForm(values));
+
+  const [disabledButton, setDisabledButton] = useState(true);
 
   useEffect(() => {
-    setDisabledButton(true);
-  }, []);
+    if (Object.keys(errors).length === 0 && errors.constructor === Object) {
+      setDisabledButton(false);
+    } else {
+      setDisabledButton(true);
+    }
 
-  useEffect(() => {
-    const errors = validateForm(values);
-    console.log(errors);
+    return () => {
+      setErrors(validateForm(values));
+      setDisabledButton(true);
+    }
   }, [values]);
+
+  useEffect(() => {
+    const { error } = props;
+
+    if (error.id === 'REGISTER_FAIL') {
+      setError(error.error.error);
+    } else {
+      setError(null);
+    }
+
+    return () => {
+      setError(null);
+    }
+  }, [props.error])
+
+  useEffect(() => {
+    return () => {
+      props.clearErrors();
+    }
+  }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const { name, email, password } = values;
+
+    const newUser = {
+      name,
+      email,
+      password
+    };
+
+    props.register(newUser);
   }
 
   return (
@@ -84,4 +126,19 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+Register.propTypes = {
+  isAuthenticated: PropTypes.bool,
+  error: PropTypes.object.isRequired,
+  register: PropTypes.func.isRequired,
+  clearErrors: PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated,
+  error: state.error
+});
+
+export default connect(
+  mapStateToProps,
+  { register, clearErrors }
+)(Register);
