@@ -8,6 +8,10 @@ exports.registerUser = (req, res) => {
   
   const { name, email, password } = req.body;
 
+  if (!name || !email || !password) {
+    return res.status(400).send({ error: 'Please enter all fields.'});
+  }
+
   User.findOne({ email })
     .then(user => {
       console.log(user);
