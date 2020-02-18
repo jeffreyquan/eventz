@@ -1,15 +1,15 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('config');
-const User = require("../models/userModel");
+const User = require('../models/userModel');
 
 exports.loginUser = (req, res) => {
-  
+
   const { email, password } = req.body;
 
   User.findOne({ email }, (err, user) => {
-    if (err) return res.state(500).send({ error: 'Server error.' });
-    if (!user) return res.status(404).send({ error: 'User does not exist.' });
+    if (err) return res.state(500).send({ message: 'Server error.' });
+    if (!user) return res.status(404).send({ message: 'User does not exist.' });
 
     bcrypt.compare(password, user.password)
       .then(isMatch => {
@@ -34,3 +34,9 @@ exports.loginUser = (req, res) => {
       })
   })
 }
+
+exports.loadUser = (req, res) => {
+  User.findById(req.user.id)
+    .select('-password')
+    .then(user => res.json(user));
+};
