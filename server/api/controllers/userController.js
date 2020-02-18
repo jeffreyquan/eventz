@@ -9,21 +9,19 @@ exports.registerUser = (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).send({ error: 'Please enter all fields.'});
+    return res.status(400).send({ message: 'Please enter all fields.'});
   }
 
   User.findOne({ email })
     .then(user => {
-      console.log(user);
-      if (user) return res.status(400).send({ error: 'User already exists.'});
-      console.log('Whoo');
+    
+      if (user) return res.status(400).send({ message: 'User already exists.'});
+ 
       const newUser = new User({
         name,
         email,
         password
       });
-
-      console.log(newUser);
 
       bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
         if (err) throw err;
