@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import Register from './Register';
+import Login from './Login';
 
 import { Provider } from 'react-redux';
 import store from '../store';
@@ -14,7 +15,7 @@ function App() {
   return (
     <Provider store={store}>
       <div className="App">
-        <Register />
+        <Login />
       </div>
     </Provider>
   );
