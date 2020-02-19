@@ -6,7 +6,13 @@ import PropTypes from 'prop-types';
 import { login } from '../actions/authActions';
 import { clearErrors } from '../actions/errorActions';
 
-const Login = props => {
+const Login = ({
+  isAuthenticated,
+  error,
+  login,
+  clearErrors
+}) => {
+
   const [values, handleChange] = useForm({
     email: "",
     password: "",
@@ -14,13 +20,11 @@ const Login = props => {
 
   const [message, setMessage] = useState(null);
 
-  const { error, clearErrors } = props;
-
   useEffect(() => {
-    console.log(error);
+
     if (error.id === 'LOGIN_FAIL') {
-      console.log(error);
-      setMessage(error.error.error);
+      setMessage(error.error.message);
+      values.password = '';
     } else {
       setMessage(null);
     }
@@ -28,17 +32,16 @@ const Login = props => {
     return () => {
       setMessage(null);
     }
-  }, [error])
+  }, [error, values.password])
 
   useEffect(() => {
     return () => {
       clearErrors();
     }
-  }, [])
+  }, [clearErrors])
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log('hello')
 
     const { email, password } = values;
 
@@ -47,7 +50,7 @@ const Login = props => {
       password
     };
 
-    props.login(user);
+    login(user);
   };
 
   return (
