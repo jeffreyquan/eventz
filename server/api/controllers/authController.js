@@ -13,7 +13,7 @@ exports.loginUser = (req, res) => {
 
     bcrypt.compare(password, user.password)
       .then(isMatch => {
-        if (!isMatch) return res.status(400).send({ auth: false, token: null })
+        if (!isMatch) return res.status(400).send({ message: 'Incorret password.', auth: false, token: null })
 
         jwt.sign(
           { id: user.id },
