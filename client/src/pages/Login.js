@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from '../utils/useForm';
 import { connect } from 'react-redux';
-import { Grid, Button, Form } from 'semantic-ui-react';
+import { Grid, Button, Form, Message } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { login } from '../actions/authActions';
 import { clearErrors } from '../actions/errorActions';
+
+const initialValues = {
+  email: "",
+  password: "",
+};
 
 const Login = ({
   isAuthenticated,
@@ -13,18 +17,28 @@ const Login = ({
   clearErrors
 }) => {
 
-  const [values, handleChange] = useForm({
-    email: "",
-    password: "",
-  });
+  const [values, setValues] = useState(initialValues);
 
   const [message, setMessage] = useState(null);
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setValues({
+      ...values,
+      [name]: value
+    })
+  };
+
+  const resetForm = () => {
+    setValues({...initialValues});
+  };
 
   useEffect(() => {
 
     if (error.id === 'LOGIN_FAIL') {
       setMessage(error.error.message);
-      values.password = '';
+      setTimeout(() => setMessage(null), 3000);
+      resetForm();
     } else {
       setMessage(null);
     }
@@ -81,6 +95,15 @@ const Login = ({
               Login
             </Button>
           </Form>
+          {message ?
+            <Message
+              error
+              header="Error"
+              content={message}
+            />
+            :
+            ''
+          }
         </Grid.Column>
       </Grid.Row>
     </Grid>
