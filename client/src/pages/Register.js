@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from '../utils/useForm';
 import { connect } from 'react-redux';
 import  { Grid, Button, Form } from 'semantic-ui-react';
@@ -7,7 +7,12 @@ import validateForm from '../utils/validateForm';
 import { register } from '../actions/authActions';
 import { clearErrors } from '../actions/errorActions';
 
-const Register = props => {
+const Register = ({
+  isAuthenticated,
+  error,
+  register,
+  clearErrors
+}) => {
 
   const [values, handleChange] = useForm({
     name: "",
@@ -16,13 +21,14 @@ const Register = props => {
     confirmationPassword: ""
   });
 
-  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
 
   const [errors, setErrors] = useState(validateForm(values));
 
   const [disabledButton, setDisabledButton] = useState(true);
 
   useEffect(() => {
+
     if (Object.keys(errors).length === 0 && errors.constructor === Object) {
       setDisabledButton(false);
     } else {
@@ -33,27 +39,26 @@ const Register = props => {
       setErrors(validateForm(values));
       setDisabledButton(true);
     }
-  }, [values]);
+  }, [errors, values]);
 
   useEffect(() => {
-    const { error } = props;
 
     if (error.id === 'REGISTER_FAIL') {
-      setError(error.error.error);
+      setMessage(error.error.message);
     } else {
-      setError(null);
+      setMessage(null);
     }
 
     return () => {
-      setError(null);
+      setMessage(null);
     }
-  }, [props.error])
+  }, [error])
 
   useEffect(() => {
     return () => {
-      props.clearErrors();
+      clearErrors();
     }
-  }, [])
+  }, [clearErrors])
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -66,7 +71,7 @@ const Register = props => {
       password
     };
 
-    props.register(newUser);
+    register(newUser);
   }
 
   return (
