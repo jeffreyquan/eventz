@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useForm } from '../utils/useForm';
 import { connect } from 'react-redux';
-import  { Grid, Button, Form } from 'semantic-ui-react';
+import  { Grid, Button, Form, Message } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import validateForm from '../utils/validateForm';
 import { register } from '../actions/authActions';
 import { clearErrors } from '../actions/errorActions';
+
+const initialValues = {
+  name: "",
+  email: "",
+  password: "",
+  confirmationPassword: ""
+};
 
 const Register = ({
   isAuthenticated,
@@ -14,18 +20,39 @@ const Register = ({
   clearErrors
 }) => {
 
-  const [values, handleChange] = useForm({
-    name: "",
-    email: "",
-    password: "",
-    confirmationPassword: ""
-  });
+  const [values, setValues] = useState(initialValues);
 
   const [message, setMessage] = useState(null);
 
-  const [errors, setErrors] = useState(validateForm(values));
+  const [errors, setErrors] = useState({});
 
   const [disabledButton, setDisabledButton] = useState(true);
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setValues({
+      ...values,
+      [name]: value
+    })
+  };
+
+  const resetForm = () => {
+    setValues({...initialValues});
+  };
+
+  const validateInput = e =>{
+    const { name } = e.target;
+    setErrors({
+      ...errors,
+      [name]: validateForm(values)[name]
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      setErrors({});
+    }
+  }, []);
 
   useEffect(() => {
 
@@ -36,15 +63,16 @@ const Register = ({
     }
 
     return () => {
-      setErrors(validateForm(values));
       setDisabledButton(true);
     }
-  }, [errors, values]);
+  }, [errors]);
 
   useEffect(() => {
 
     if (error.id === 'REGISTER_FAIL') {
       setMessage(error.error.message);
+      setTimeout(() => setMessage(null), 3000);
+      resetForm();
     } else {
       setMessage(null);
     }
@@ -86,7 +114,9 @@ const Register = ({
                 placeholder="Name"
                 value={values.name}
                 onChange={handleChange}
+                onBlur={validateInput}
                 required
+                error={ errors.name }
               />
             </Form.Field>
             <Form.Field>
@@ -96,7 +126,9 @@ const Register = ({
                 placeholder="Email"
                 value={values.email}
                 onChange={handleChange}
+                onBlur={validateInput}
                 required
+                error={ errors.email }
               />
             </Form.Field>
             <Form.Field>
@@ -107,7 +139,9 @@ const Register = ({
                 placeholder="Password"
                 value={values.password}
                 onChange={handleChange}
+                onBlur={validateInput}
                 required
+                error={ errors.password }
               />
             </Form.Field>
             <Form.Field>
@@ -118,13 +152,24 @@ const Register = ({
                 placeholder="Confirm Password"
                 value={values.confirmationPassword}
                 onChange={handleChange}
+                onBlur={validateInput}
                 required
+                error={ errors.confirmationPassword }
               />
             </Form.Field>
             <Button type="submit" disabled={disabledButton}>
               Sign Up
             </Button>
           </Form>
+          {message?
+            <Message
+              error
+              header="Error"
+              content={ message }
+            />
+          :
+            ''
+          }
         </Grid.Column>
       </Grid.Row>
     </Grid>
