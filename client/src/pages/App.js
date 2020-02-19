@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Home from './Home';
 import Register from './Register';
 import Login from './Login';
 
@@ -15,7 +17,23 @@ function App() {
   return (
     <Provider store={store}>
       <div className="App">
-        <Login />
+        <Router>
+          <Switch>
+            <Route exact path="/">
+              <Home />
+            </Route>
+          </Switch>
+          <Switch>
+            <Route path="/login">
+              <Login />
+            </Route>
+          </Switch>
+          <Switch>
+            <Route path="/register">
+              <Register />
+            </Route>
+          </Switch>
+        </Router>
       </div>
     </Provider>
   );
